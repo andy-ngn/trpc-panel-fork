@@ -20,7 +20,8 @@ import { DocumentationSection } from "@src/react-app/components/form/ProcedureFo
 import { Field } from "@src/react-app/components/form/Field";
 import { ProcedureFormContextProvider } from "@src/react-app/components/form/ProcedureForm/ProcedureFormContext";
 import getSize from "string-byte-length";
-
+import JSONEditor from "../JSONEditor";
+import { ToggleJsonIcon } from "@src/react-app/components/icons/ToggleJsonIcon";
 const TRPCErrorSchema = z.object({
   shape: z.object({
     message: z.string().optional(),
@@ -110,6 +111,8 @@ export function ProcedureForm({
     control,
     reset: resetForm,
     handleSubmit,
+    getValues,
+    setValue,
   } = useForm({
     resolver: ajvResolver(wrapJsonSchema(procedure.inputSchema as any), {
       formats: fullFormats,
@@ -160,6 +163,11 @@ export function ProcedureForm({
     procedure.procedureType == "query" ? query.error : mutation.error;
 
   const fieldName = procedure.node.path.join(".");
+  const [useRawInput, setUseRawInput] = useState(false);
+  function toggleRawInput() {
+    console.log(getValues());
+    setUseRawInput(!useRawInput);
+  }
 
   return (
     <ProcedureFormContextProvider path={procedure.pathFromRootRouter.join(".")}>
@@ -183,24 +191,38 @@ export function ProcedureForm({
 
             <FormSection
               title="Input"
-              topRightElement={<XButton control={control} reset={reset} />}
+              topRightElement={
+                <div className="flex">
+                  <XButton control={control} reset={reset} />
+                  <ToggleRawInput onClick={toggleRawInput} />
+                </div>
+              }
             >
-              {procedure.node.type === "object" ? (
-                Object.keys(procedure.node.children).length > 0 && (
-                  <ObjectField
-                    node={
-                      procedure.node as ParsedInputNode & {
-                        type: "object";
-                      }
-                    }
-                    label={fieldName}
-                    control={control}
-                    topLevel
-                  />
-                )
-              ) : (
-                <Field inputNode={procedure.node} control={control} />
+              {useRawInput && (
+                <JSONEditor
+                  value={getValues().vals}
+                  onChange={(values) => {
+                    setValue("vals", values);
+                  }}
+                />
               )}
+              {!useRawInput &&
+                (procedure.node.type === "object" ? (
+                  Object.keys(procedure.node.children).length > 0 && (
+                    <ObjectField
+                      node={
+                        procedure.node as ParsedInputNode & {
+                          type: "object";
+                        }
+                      }
+                      label={fieldName}
+                      control={control}
+                      topLevel
+                    />
+                  )
+                ) : (
+                  <Field inputNode={procedure.node} control={control} />
+                ))}
 
               <ProcedureFormButton
                 text={`Execute ${name}`}
@@ -249,6 +271,16 @@ function XButton({
           <CloseIcon className="w-6 h-6" />
         </button>
       )}
+    </div>
+  );
+}
+
+function ToggleRawInput({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="w-6 h-6">
+      <button type="button" onClick={onClick}>
+        <ToggleJsonIcon className="w-6 h-6" />
+      </button>
     </div>
   );
 }
