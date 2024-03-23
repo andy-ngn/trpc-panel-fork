@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "prepare": "yarn install && yarn build:panel",
     "test:panel": "yarn && npx nx test --project trpc-panel",
     "build:panel": "yarn && npx nx build --project trpc-panel",
     "build:test-app": "yarn && npx nx build --project test-trpc-panel",
