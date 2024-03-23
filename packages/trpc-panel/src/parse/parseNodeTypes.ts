@@ -33,6 +33,11 @@ export type DiscriminatedUnionNode = {
   discriminatorName: string;
 } & SharedInputNodeProperties;
 
+export type UnionNode = {
+  type: "union";
+  values: LiteralNode[];
+} & SharedInputNodeProperties;
+
 /**
  * Any time you just want the front end to send back a value use this
  */
@@ -58,6 +63,7 @@ export type ParsedInputNode =
   | ObjectNode
   | EnumNode
   | DiscriminatedUnionNode
+  | UnionNode
   | LiteralNode
   | StringNode
   | NumberNode
@@ -65,17 +71,19 @@ export type ParsedInputNode =
   | UnsupportedNode;
 
 export type AddDataFunctions = {
-    addDescriptionIfExists: (def: {description?: string}, refs: ParseReferences) => void;
-  }
+  addDescriptionIfExists: (
+    def: { description?: string },
+    refs: ParseReferences
+  ) => void;
+};
 
 export type ParseReferences = {
   path: string[];
   optional?: true;
   // Doesn't do anything yet but maybe down the road we can extend with this
   options: TrpcPanelExtraOptions;
-  addDataFunctions: AddDataFunctions
+  addDataFunctions: AddDataFunctions;
 };
-
 
 export type ParseFunction<
   InputNodeType extends InputNodeTypes,
