@@ -65,10 +65,7 @@ function nodeAndInputSchemaFromInputs(
   if (!inputs.length) {
     return {
       parseInputResult: "success",
-      schema: zodToJsonSchema(emptyZodObject, {
-        errorMessages: true,
-        $refStrategy: "none",
-      }),
+      schema: zodToJsonSchema(emptyZodObject, { errorMessages: true }),
       node: inputParserMap["zod"](emptyZodObject, {
         path: [],
         options,
@@ -76,10 +73,11 @@ function nodeAndInputSchemaFromInputs(
       }),
     };
   }
+
+  let input = inputs[0];
   if (inputs.length !== 1) {
-    return { parseInputResult: "failure" };
+    input = inputs.reduce((acc, input) => (acc as any).merge(input), emptyZodObject);
   }
-  const input = inputs[0];
   const iType = inputType(input);
   if (iType == "unsupported") {
     return { parseInputResult: "failure" };
@@ -87,10 +85,7 @@ function nodeAndInputSchemaFromInputs(
 
   return {
     parseInputResult: "success",
-    schema: zodToJsonSchema(input as any, {
-      errorMessages: true,
-      $refStrategy: "none",
-    }), //
+    schema: zodToJsonSchema(input as any, { errorMessages: true }), //
     node: zodSelectorFunction((input as any)._def, {
       path: [],
       options,
