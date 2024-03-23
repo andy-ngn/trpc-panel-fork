@@ -1,8 +1,8 @@
-import create from "zustand";
+import { create } from "zustand";
 
-(()=>{
+(() => {
   // ssr for dev app
-  if(typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return;
   }
   document.addEventListener("keydown", function (event) {
@@ -10,7 +10,7 @@ import create from "zustand";
       event.preventDefault();
     }
   });
-})()
+})();
 
 interface SearchStore {
   searchOpen: boolean;
